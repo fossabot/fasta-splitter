@@ -1,2 +1,2 @@
-# NCBI Sequences File Splitter
-Python script to split NCBI sequences file into individual files.
+# Fasta Sequences File Splitter
+Command line tool to split one multiple sequences fasta file into individual sequences fasta files.
