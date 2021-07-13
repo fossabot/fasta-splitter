@@ -13,7 +13,13 @@ def get_version():
                 minor = line.rsplit("=", 1)[1]
             if "patch" in line:
                 patch = line.rsplit("=", 1)[1]
-    return major + "." + minor + "." + patch
+            if "prerelease" in line:
+                prerelease = line.rsplit("=", 1)[1]
+    if len(prerelease) > 0:
+        version = major + "." + minor + "." + patch + "-" + prerelease
+    else:
+        version = major + "." + minor + "." + patch
+    return version
 
 
 def get_readme():
