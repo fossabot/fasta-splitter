@@ -1,6 +1,5 @@
 from pathlib import Path
 import fastasplitter.exceptions
-import os
 import sys
 
 
@@ -17,7 +16,7 @@ def get_sequences_file_extension(fasta_sequences_file_path: Path):
 
 
 def check_if_is_valid_fasta_sequences_file(fasta_sequences_file_path: Path):
-    if not os.path.isfile(fasta_sequences_file_path):
+    if not fasta_sequences_file_path.is_file():
         file_not_found_message = "FASTA Sequences File not Found!"
         raise FileNotFoundError(file_not_found_message)
     if get_sequences_file_extension(fasta_sequences_file_path) not in ["fa", "faa", "fasta", "ffn", "fna", "frn"]:
