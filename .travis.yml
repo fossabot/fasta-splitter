@@ -3,17 +3,36 @@ python:
   - "3.8"
 jobs:
   include:
-    - name: "Python 3.8.0 on Xenial Linux"
-    - name: "Python 3.8.0 on FreeBSD"
+    - name: "Ubuntu Focal Fossa 20.04 LTS"
+      os: linux
+      dist: focal
+    - name: "Ubuntu Bionic Beaver 18.04 LTS"
+      os: linux
+      dist: bionic
+    - name: "Ubuntu Xenial Xerus 16.04 LTS"
+      os: linux
+      dist: xenial
+    - name: "FreeBSD 12.1"
       os: freebsd
-      language: python
-    - name: "Python 3.8.0 on macOS"
+    - name: "macOS Big Sur 11"
       os: osx
-      osx_image: xcode10.1
+      osx_image: xcode12.5
       language: shell
       before_install:
-        - brew update && brew install python3
-    - name: "Python 3.8.0 on Windows"
+        - brew install python3
+    - name: "macOS Catalina 10.15"
+      os: osx
+      osx_image: xcode12
+      language: shell
+      before_install:
+        - brew install python3
+    - name: "macOS Mojave 10.14"
+      os: osx
+      osx_image: xcode11.3
+      language: shell
+      before_install:
+        - brew install python3
+    - name: "Windows Server 1809"
       os: windows
       language: shell
       before_install:
