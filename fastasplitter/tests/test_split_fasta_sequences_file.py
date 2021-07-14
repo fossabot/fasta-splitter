@@ -39,7 +39,7 @@ def test_when_sequences_file_is_fasta_extension_then_return_extension():
         pass
     sequences_file_extension_returned = fastasplitter.split_fasta_sequences_file \
         .get_sequences_file_extension(temporary_sequences_file)
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(temporary_sequences_file).unlink()
     assert sequences_file_extension_returned == sequences_file_extension_expected
 
 
@@ -52,7 +52,7 @@ def test_when_sequences_file_is_not_fasta_extension_then_throws_invalid_extensio
     invalid_format_file_message = "Only FASTA Extension Files (.fa, .faa, .fasta, .ffn, .fna or .frn) are Allowed!"
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidExtensionFileError
     assert str(pytest_wrapped_e.value) == invalid_format_file_message
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(temporary_sequences_file).unlink()
 
 
 def test_when_fasta_sequences_file_has_not_any_description_line_then_throws_invalid_formatted_fasta_file_exception():
@@ -66,7 +66,7 @@ def test_when_fasta_sequences_file_has_not_any_description_line_then_throws_inva
     invalid_formatted_fasta_file_message = "'{0}' Has Not Any Description Line!".format(str(temporary_sequences_file))
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidFormattedFastaFileError
     assert str(pytest_wrapped_e.value) == invalid_formatted_fasta_file_message
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(temporary_sequences_file).unlink()
 
 
 def test_when_fasta_sequences_file_has_invalid_description_lines_then_throws_invalid_formatted_fasta_file_exception():
@@ -82,7 +82,7 @@ def test_when_fasta_sequences_file_has_invalid_description_lines_then_throws_inv
         .format(str(temporary_sequences_file), str(2))
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidFormattedFastaFileError
     assert str(pytest_wrapped_e.value) == invalid_formatted_fasta_file_message
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(temporary_sequences_file).unlink()
 
 
 def test_when_fasta_sequences_file_has_no_data_then_throws_invalid_formatted_fasta_file_exception():
@@ -94,7 +94,7 @@ def test_when_fasta_sequences_file_has_no_data_then_throws_invalid_formatted_fas
     invalid_formatted_fasta_file_message = "'{0}' Seems a Empty Fasta File!".format(str(temporary_sequences_file))
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidFormattedFastaFileError
     assert str(pytest_wrapped_e.value) == invalid_formatted_fasta_file_message
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(temporary_sequences_file).unlink()
 
 
 def test_when_fasta_sequences_file_has_all_valid_lines_then_ok():
@@ -105,7 +105,7 @@ def test_when_fasta_sequences_file_has_all_valid_lines_then_ok():
         sequences_file.write(">ValidDescription3\nGGG\n")
     assert fastasplitter.split_fasta_sequences_file \
            .check_if_is_valid_fasta_sequences_file(temporary_sequences_file) is None
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(temporary_sequences_file).unlink()
 
 
 def test_when_fasta_sequences_file_has_no_prefix_path_then_return_empty_prefix_path_string():
@@ -116,7 +116,7 @@ def test_when_fasta_sequences_file_has_no_prefix_path_then_return_empty_prefix_p
     sequences_file_prefix_path_string_returned = fastasplitter.split_fasta_sequences_file \
         .get_sequences_file_prefix_path_string(temporary_sequences_file)
     assert sequences_file_prefix_path_string_returned == sequences_file_prefix_path_string_expected
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(temporary_sequences_file).unlink()
 
 
 def test_when_fasta_sequences_file_has_prefix_path_then_return_prefix_path_string():
@@ -129,7 +129,7 @@ def test_when_fasta_sequences_file_has_prefix_path_then_return_prefix_path_strin
     sequences_file_prefix_path_string_returned = fastasplitter.split_fasta_sequences_file \
         .get_sequences_file_prefix_path_string(temporary_sequences_file)
     assert sequences_file_prefix_path_string_returned == sequences_file_prefix_path_string_expected
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(temporary_sequences_file).unlink()
     Path(temporary_sequences_directory_name).rmdir()
 
 
@@ -144,7 +144,7 @@ def test_when_fasta_sequences_file_valid_then_return_sequences_name_list():
         .get_sequences_name_list(temporary_sequences_file)
     for index in range(len(sequences_name_list_returned)):
         assert sequences_name_list_returned[index] == sequences_name_list_expected[index]
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(temporary_sequences_file).unlink()
 
 
 def test_when_fasta_sequences_file_valid_then_return_sequences_data_list():
@@ -158,7 +158,7 @@ def test_when_fasta_sequences_file_valid_then_return_sequences_data_list():
         .get_sequences_data_list(temporary_sequences_file)
     for index in range(len(sequences_data_list_returned)):
         assert sequences_data_list_returned[index][1] == sequences_data_list_expected[index]
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(temporary_sequences_file).unlink()
 
 
 def test_when_fasta_sequences_file_valid_then_split_sequences_and_write_to_disk():
@@ -186,10 +186,10 @@ def test_when_fasta_sequences_file_valid_then_split_sequences_and_write_to_disk(
     assert sequence1_file_expected.exists()
     assert sequence2_file_expected.exists()
     assert sequence3_file_expected.exists()
-    Path(sequence1_file_expected).unlink(missing_ok=True)
-    Path(sequence2_file_expected).unlink(missing_ok=True)
-    Path(sequence3_file_expected).unlink(missing_ok=True)
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(sequence1_file_expected).unlink()
+    Path(sequence2_file_expected).unlink()
+    Path(sequence3_file_expected).unlink()
+    Path(temporary_sequences_file).unlink()
 
 
 def test_when_fasta_sequences_file_has_no_prefix_path_then_write_sequences_list_file_to_disk():
@@ -211,8 +211,8 @@ def test_when_fasta_sequences_file_has_no_prefix_path_then_write_sequences_list_
                                                           sequences_file_extension_returned,
                                                           sequences_name_list_returned)
     assert sequences_list_file_expected.exists()
-    Path(sequences_list_file_expected).unlink(missing_ok=True)
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(sequences_list_file_expected).unlink()
+    Path(temporary_sequences_file).unlink()
 
 
 def test_when_fasta_sequences_file_has_prefix_path_then_write_sequences_list_file_to_disk():
@@ -235,8 +235,8 @@ def test_when_fasta_sequences_file_has_prefix_path_then_write_sequences_list_fil
                                                           sequences_file_extension_returned,
                                                           sequences_name_list_returned)
     assert Path(sequences_list_file_expected).is_file()
-    Path(sequences_list_file_expected).unlink(missing_ok=True)
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(sequences_list_file_expected).unlink()
+    Path(temporary_sequences_file).unlink()
     Path(temporary_sequences_directory).rmdir()
 
 
@@ -255,8 +255,8 @@ def test_when_execute_main_function_with_valid_fasta_sequences_file_then_return_
         runpy.run_path("fastasplitter/split_fasta_sequences_file.py", run_name="__main__")
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 0
-    Path(sequence1_file_expected).unlink(missing_ok=True)
-    Path(sequence2_file_expected).unlink(missing_ok=True)
-    Path(sequence3_file_expected).unlink(missing_ok=True)
-    Path(sequences_list_file_expected).unlink(missing_ok=True)
-    Path(temporary_sequences_file).unlink(missing_ok=True)
+    Path(sequence1_file_expected).unlink()
+    Path(sequence2_file_expected).unlink()
+    Path(sequence3_file_expected).unlink()
+    Path(sequences_list_file_expected).unlink()
+    Path(temporary_sequences_file).unlink()
