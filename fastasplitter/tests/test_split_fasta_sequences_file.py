@@ -120,10 +120,10 @@ def test_when_fasta_sequences_file_has_no_prefix_path_then_return_empty_prefix_p
 
 
 def test_when_fasta_sequences_file_has_prefix_path_then_return_prefix_path_string():
-    sequences_file_prefix_path_string_expected = "sequences_directory/"
-    temporary_sequences_directory_name = "sequences_directory/"
+    sequences_file_prefix_path_string_expected = "sequences_directory"
+    temporary_sequences_directory_name = "sequences_directory"
     Path(temporary_sequences_directory_name).mkdir()
-    temporary_sequences_file = Path(temporary_sequences_directory_name + "sequences.fasta")
+    temporary_sequences_file = Path(temporary_sequences_directory_name, "sequences.fasta")
     with open(Path(temporary_sequences_file), mode="w"):
         pass
     sequences_file_prefix_path_string_returned = fastasplitter.split_fasta_sequences_file \
@@ -216,11 +216,10 @@ def test_when_fasta_sequences_file_has_no_prefix_path_then_write_sequences_list_
 
 
 def test_when_fasta_sequences_file_has_prefix_path_then_write_sequences_list_file_to_disk():
-    sequences_list_file_prefix_expected = "sequences_directory_"
-    sequences_list_file_expected = Path(sequences_list_file_prefix_expected + "Sequences_List.txt")
+    sequences_list_file_expected = "sequences_directory_Sequences_List.txt"
     temporary_sequences_directory = "sequences_directory"
     Path(temporary_sequences_directory).mkdir()
-    temporary_sequences_file = Path(temporary_sequences_directory + "/" + "sequences.fasta")
+    temporary_sequences_file = Path(temporary_sequences_directory, "sequences.fasta")
     with open(Path(temporary_sequences_file), mode="w") as sequences_file:
         sequences_file.write(">Sequence1|text1\nAAA\n")
         sequences_file.write(">Sequence2 |text2\nCCC\n")
@@ -235,7 +234,8 @@ def test_when_fasta_sequences_file_has_prefix_path_then_write_sequences_list_fil
         .write_sequences_fasta_files_index_list_text_file(sequences_file_prefix_path_string_returned,
                                                           sequences_file_extension_returned,
                                                           sequences_name_list_returned)
-    assert sequences_list_file_expected.exists()
+    assert Path(sequences_list_file_expected).is_file()
+    Path(sequences_list_file_expected).unlink(missing_ok=True)
     Path(temporary_sequences_file).unlink(missing_ok=True)
     Path(temporary_sequences_directory).rmdir()
 
@@ -244,8 +244,7 @@ def test_when_execute_main_function_with_valid_fasta_sequences_file_then_return_
     sequence1_file_expected = Path("Sequence1.fasta")
     sequence2_file_expected = Path("Sequence2.fasta")
     sequence3_file_expected = Path("Sequence3.fasta")
-    sequences_list_file_prefix_expected = ""
-    sequences_list_file_expected = Path(sequences_list_file_prefix_expected + "Sequences_List.txt")
+    sequences_list_file_expected = Path("Sequences_List.txt")
     temporary_sequences_file = Path("sequences.fasta")
     with open(Path(temporary_sequences_file), mode="w") as sequences_file:
         sequences_file.write(">Sequence1|text1\nAAA\n")

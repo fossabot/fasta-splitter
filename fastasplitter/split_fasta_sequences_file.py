@@ -47,11 +47,11 @@ def check_if_is_valid_fasta_sequences_file(fasta_sequences_file_path: Path):
 
 
 def get_sequences_file_prefix_path_string(fasta_sequences_file_path: Path):
-    sequences_file_prefix_path = ""
+    sequences_file_prefix_path_string = ""
     sequences_file_path_split = str(fasta_sequences_file_path).rsplit("/", 1)
     if len(sequences_file_path_split) > 1:
-        sequences_file_prefix_path = sequences_file_path_split[0] + "/"
-    return sequences_file_prefix_path
+        sequences_file_prefix_path_string = sequences_file_path_split[0]
+    return sequences_file_prefix_path_string
 
 
 def get_sequences_name_list(fasta_sequences_file_path: Path):
@@ -87,9 +87,8 @@ def write_sequences_fasta_files_from_sequences_lists(sequences_file_prefix_path_
                                                      sequences_data_list: list):
     wrote_sequences_fasta_files_count = 0
     for index_name in range(len(sequences_name_list)):
-        sequence_name = sequences_name_list[index_name]
-        sequence_file_name = sequences_file_prefix_path_string + sequence_name + "." + sequences_file_extension
-        with open(sequence_file_name, mode="w") as sequence_file:
+        sequence_file_name = sequences_name_list[index_name] + "." + sequences_file_extension
+        with open(Path(sequences_file_prefix_path_string, sequence_file_name), mode="w") as sequence_file:
             sequence_data = sequences_data_list[index_name]
             for index_data in range(len(sequence_data)):
                 sequence_file.write(sequence_data[index_data] + "\n")
@@ -99,14 +98,14 @@ def write_sequences_fasta_files_from_sequences_lists(sequences_file_prefix_path_
 def write_sequences_fasta_files_index_list_text_file(sequences_file_prefix_path_string: str,
                                                      sequences_file_extension: str,
                                                      sequences_name_list: list):
-    sequences_prefix_path = sequences_file_prefix_path_string.rsplit("/", 1)[0]
-    if len(sequences_prefix_path) > 0:
-        sequences_list_file_name = sequences_prefix_path + "_Sequences_List.txt"
-        sequences_prefix_path = sequences_prefix_path + "/"
+    sequences_prefix_path = ""
+    if len(sequences_file_prefix_path_string) > 0:
+        sequences_list_file_name = sequences_file_prefix_path_string + "_Sequences_List.txt"
+        sequences_prefix_path = sequences_file_prefix_path_string + "/"
     else:
         sequences_list_file_name = "Sequences_List.txt"
     sequences_fasta_files_index_count = 0
-    with open(sequences_list_file_name, mode="w") as sequences_list_file:
+    with open(Path(sequences_list_file_name), mode="w") as sequences_list_file:
         for index_name in range(len(sequences_name_list)):
             sequence_name = sequences_name_list[index_name]
             sequence_file_name = sequences_prefix_path + sequence_name + "." + sequences_file_extension
