@@ -33,31 +33,31 @@ def test_when_sequences_file_not_exists_then_throws_file_not_found_exception():
 
 
 def test_when_sequences_file_is_fasta_extension_then_return_extension():
-    sequences_file_extension_expected = "fasta"
+    sequences_file_extension_expected = ".fasta"
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w"):
+    with open(temporary_sequences_file, mode="w"):
         pass
     sequences_file_extension_returned = fastasplitter.split_fasta_sequences_file \
         .get_sequences_file_extension(temporary_sequences_file)
-    Path(temporary_sequences_file).unlink()
     assert sequences_file_extension_returned == sequences_file_extension_expected
+    temporary_sequences_file.unlink()
 
 
 def test_when_sequences_file_is_not_fasta_extension_then_throws_invalid_extension_file_exception():
     temporary_sequences_file = Path("sequences.txt")
-    with open(Path(temporary_sequences_file), mode="w"):
+    with open(temporary_sequences_file, mode="w"):
         pass
     with pytest.raises(fastasplitter.exceptions.InvalidExtensionFileError) as pytest_wrapped_e:
         fastasplitter.split_fasta_sequences_file.check_if_is_valid_fasta_sequences_file(temporary_sequences_file)
     invalid_format_file_message = "Only FASTA Extension Files (.fa, .faa, .fasta, .ffn, .fna or .frn) are Allowed!"
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidExtensionFileError
     assert str(pytest_wrapped_e.value) == invalid_format_file_message
-    Path(temporary_sequences_file).unlink()
+    temporary_sequences_file.unlink()
 
 
 def test_when_fasta_sequences_file_has_not_any_description_line_then_throws_invalid_formatted_fasta_file_exception():
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w") as sequences_file:
+    with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write("AAA\n")
         sequences_file.write("CCC\n")
         sequences_file.write("GGG\n")
@@ -66,12 +66,12 @@ def test_when_fasta_sequences_file_has_not_any_description_line_then_throws_inva
     invalid_formatted_fasta_file_message = "'{0}' Has Not Any Description Line!".format(str(temporary_sequences_file))
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidFormattedFastaFileError
     assert str(pytest_wrapped_e.value) == invalid_formatted_fasta_file_message
-    Path(temporary_sequences_file).unlink()
+    temporary_sequences_file.unlink()
 
 
 def test_when_fasta_sequences_file_has_invalid_description_lines_then_throws_invalid_formatted_fasta_file_exception():
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w") as sequences_file:
+    with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write("> InvalidDescription1\nAAA\n")
         sequences_file.write(">ValidDescription1 |text1\nCCC\n")
         sequences_file.write(">ValidDescription2|text2\nGGG\n")
@@ -82,61 +82,65 @@ def test_when_fasta_sequences_file_has_invalid_description_lines_then_throws_inv
         .format(str(temporary_sequences_file), str(2))
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidFormattedFastaFileError
     assert str(pytest_wrapped_e.value) == invalid_formatted_fasta_file_message
-    Path(temporary_sequences_file).unlink()
+    temporary_sequences_file.unlink()
 
 
 def test_when_fasta_sequences_file_has_no_data_then_throws_invalid_formatted_fasta_file_exception():
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w") as sequences_file:
+    with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write(">ValidDescription1\n")
     with pytest.raises(fastasplitter.exceptions.InvalidFormattedFastaFileError) as pytest_wrapped_e:
         fastasplitter.split_fasta_sequences_file.check_if_is_valid_fasta_sequences_file(temporary_sequences_file)
     invalid_formatted_fasta_file_message = "'{0}' Seems a Empty Fasta File!".format(str(temporary_sequences_file))
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidFormattedFastaFileError
     assert str(pytest_wrapped_e.value) == invalid_formatted_fasta_file_message
-    Path(temporary_sequences_file).unlink()
+    temporary_sequences_file.unlink()
 
 
 def test_when_fasta_sequences_file_has_all_valid_lines_then_ok():
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w") as sequences_file:
+    with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write(">ValidDescription1|text1\nAAA\n")
         sequences_file.write(">ValidDescription2 |text2\nCCC\n")
         sequences_file.write(">ValidDescription3\nGGG\n")
     assert fastasplitter.split_fasta_sequences_file \
            .check_if_is_valid_fasta_sequences_file(temporary_sequences_file) is None
-    Path(temporary_sequences_file).unlink()
+    temporary_sequences_file.unlink()
 
 
-def test_when_fasta_sequences_file_has_no_prefix_path_then_return_empty_prefix_path_string():
-    sequences_file_prefix_path_string_expected = ""
+def test_when_fasta_sequences_file_has_no_path_parents_then_return_empty_path_parents_underscored_string():
+    sequences_file_path_parents_underscored_expected = ""
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w"):
+    with open(temporary_sequences_file, mode="w"):
         pass
-    sequences_file_prefix_path_string_returned = fastasplitter.split_fasta_sequences_file \
-        .get_sequences_file_prefix_path_string(temporary_sequences_file)
-    assert sequences_file_prefix_path_string_returned == sequences_file_prefix_path_string_expected
-    Path(temporary_sequences_file).unlink()
+    sequences_file_path_parents_returned = fastasplitter.split_fasta_sequences_file \
+        .get_sequences_file_path_parents(temporary_sequences_file)
+    sequences_file_path_parents_underscored_returned = fastasplitter.split_fasta_sequences_file \
+        .get_sequences_file_path_parents_underscored(sequences_file_path_parents_returned)
+    assert sequences_file_path_parents_underscored_returned == sequences_file_path_parents_underscored_expected
+    temporary_sequences_file.unlink()
 
 
-def test_when_fasta_sequences_file_has_prefix_path_then_return_prefix_path_string():
-    sequences_file_prefix_path_string_expected = "sequences_directory"
-    temporary_sequences_directory_name = "sequences_directory"
-    Path(temporary_sequences_directory_name).mkdir()
-    temporary_sequences_file = Path(temporary_sequences_directory_name, "sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w"):
+def test_when_fasta_sequences_file_has_path_parents_then_return_path_parents_underscored_string():
+    sequences_file_path_parents_underscored_expected = "sequences_directory"
+    temporary_sequences_directory = Path("sequences_directory")
+    temporary_sequences_directory.mkdir()
+    temporary_sequences_file = temporary_sequences_directory.joinpath("sequences.fasta")
+    with open(temporary_sequences_file, mode="w"):
         pass
-    sequences_file_prefix_path_string_returned = fastasplitter.split_fasta_sequences_file \
-        .get_sequences_file_prefix_path_string(temporary_sequences_file)
-    assert sequences_file_prefix_path_string_returned == sequences_file_prefix_path_string_expected
-    Path(temporary_sequences_file).unlink()
-    Path(temporary_sequences_directory_name).rmdir()
+    sequences_file_path_parents_returned = fastasplitter.split_fasta_sequences_file \
+        .get_sequences_file_path_parents(temporary_sequences_file)
+    sequences_file_path_parents_underscored_returned = fastasplitter.split_fasta_sequences_file \
+        .get_sequences_file_path_parents_underscored(sequences_file_path_parents_returned)
+    assert sequences_file_path_parents_underscored_returned == sequences_file_path_parents_underscored_expected
+    temporary_sequences_file.unlink()
+    temporary_sequences_directory.rmdir()
 
 
 def test_when_fasta_sequences_file_valid_then_return_sequences_name_list():
     sequences_name_list_expected = ["Sequence1", "Sequence2", "Sequence3"]
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w") as sequences_file:
+    with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write(">Sequence1|text1\nAAA\n")
         sequences_file.write(">Sequence2 |text2\nCCC\n")
         sequences_file.write(">Sequence3\nGGG\n")
@@ -144,13 +148,13 @@ def test_when_fasta_sequences_file_valid_then_return_sequences_name_list():
         .get_sequences_name_list(temporary_sequences_file)
     for index in range(len(sequences_name_list_returned)):
         assert sequences_name_list_returned[index] == sequences_name_list_expected[index]
-    Path(temporary_sequences_file).unlink()
+    temporary_sequences_file.unlink()
 
 
 def test_when_fasta_sequences_file_valid_then_return_sequences_data_list():
     sequences_data_list_expected = ["AAA", "CCC", "GGG"]
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w") as sequences_file:
+    with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write(">Sequence1|text1\nAAA\n")
         sequences_file.write(">Sequence2 |text2\nCCC\n")
         sequences_file.write(">Sequence3\nGGG\n")
@@ -158,7 +162,7 @@ def test_when_fasta_sequences_file_valid_then_return_sequences_data_list():
         .get_sequences_data_list(temporary_sequences_file)
     for index in range(len(sequences_data_list_returned)):
         assert sequences_data_list_returned[index][1] == sequences_data_list_expected[index]
-    Path(temporary_sequences_file).unlink()
+    temporary_sequences_file.unlink()
 
 
 def test_when_fasta_sequences_file_valid_then_split_sequences_and_write_to_disk():
@@ -166,12 +170,12 @@ def test_when_fasta_sequences_file_valid_then_split_sequences_and_write_to_disk(
     sequence2_file_expected = Path("Sequence2.fasta")
     sequence3_file_expected = Path("Sequence3.fasta")
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w") as sequences_file:
+    with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write(">Sequence1|text1\nAAA\n")
         sequences_file.write(">Sequence2 |text2\nCCC\n")
         sequences_file.write(">Sequence3\nGGG\n")
-    sequences_file_prefix_path_string_returned = fastasplitter.split_fasta_sequences_file \
-        .get_sequences_file_prefix_path_string(temporary_sequences_file)
+    sequences_file_path_parents_returned = fastasplitter.split_fasta_sequences_file \
+        .get_sequences_file_path_parents(temporary_sequences_file)
     sequences_file_extension_returned = fastasplitter.split_fasta_sequences_file \
         .get_sequences_file_extension(temporary_sequences_file)
     sequences_name_list_returned = fastasplitter.split_fasta_sequences_file \
@@ -179,65 +183,68 @@ def test_when_fasta_sequences_file_valid_then_split_sequences_and_write_to_disk(
     sequences_data_list_returned = fastasplitter.split_fasta_sequences_file \
         .get_sequences_data_list(temporary_sequences_file)
     fastasplitter.split_fasta_sequences_file \
-        .write_sequences_fasta_files_from_sequences_lists(sequences_file_prefix_path_string_returned,
+        .write_sequences_fasta_files_from_sequences_lists(sequences_file_path_parents_returned,
                                                           sequences_file_extension_returned,
                                                           sequences_name_list_returned,
                                                           sequences_data_list_returned)
     assert sequence1_file_expected.exists()
     assert sequence2_file_expected.exists()
     assert sequence3_file_expected.exists()
-    Path(sequence1_file_expected).unlink()
-    Path(sequence2_file_expected).unlink()
-    Path(sequence3_file_expected).unlink()
-    Path(temporary_sequences_file).unlink()
+    sequence1_file_expected.unlink()
+    sequence2_file_expected.unlink()
+    sequence3_file_expected.unlink()
+    temporary_sequences_file.unlink()
 
 
-def test_when_fasta_sequences_file_has_no_prefix_path_then_write_sequences_list_file_to_disk():
-    sequences_list_file_prefix_expected = ""
-    sequences_list_file_expected = Path(sequences_list_file_prefix_expected + "Sequences_List.txt")
+def test_when_fasta_sequences_file_has_no_path_parents_then_write_sequences_list_file_to_disk():
+    sequences_list_file_expected = Path("Sequences_List.txt")
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w") as sequences_file:
+    with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write(">Sequence1|text1\nAAA\n")
         sequences_file.write(">Sequence2 |text2\nCCC\n")
         sequences_file.write(">Sequence3\nGGG\n")
-    sequences_file_prefix_path_string_returned = fastasplitter.split_fasta_sequences_file \
-        .get_sequences_file_prefix_path_string(temporary_sequences_file)
+    sequences_file_path_parents_returned = fastasplitter.split_fasta_sequences_file \
+        .get_sequences_file_path_parents(temporary_sequences_file)
+    sequences_file_path_parents_underscored_returned = fastasplitter.split_fasta_sequences_file \
+        .get_sequences_file_path_parents_underscored(sequences_file_path_parents_returned)
     sequences_file_extension_returned = fastasplitter.split_fasta_sequences_file \
         .get_sequences_file_extension(temporary_sequences_file)
     sequences_name_list_returned = fastasplitter.split_fasta_sequences_file \
         .get_sequences_name_list(temporary_sequences_file)
     fastasplitter.split_fasta_sequences_file \
-        .write_sequences_fasta_files_index_list_text_file(sequences_file_prefix_path_string_returned,
+        .write_sequences_fasta_files_index_list_text_file(sequences_file_path_parents_underscored_returned,
                                                           sequences_file_extension_returned,
                                                           sequences_name_list_returned)
     assert sequences_list_file_expected.exists()
-    Path(sequences_list_file_expected).unlink()
-    Path(temporary_sequences_file).unlink()
+    sequences_list_file_expected.unlink()
+    temporary_sequences_file.unlink()
 
 
-def test_when_fasta_sequences_file_has_prefix_path_then_write_sequences_list_file_to_disk():
-    sequences_list_file_expected = "sequences_directory_Sequences_List.txt"
-    temporary_sequences_directory = "sequences_directory"
-    Path(temporary_sequences_directory).mkdir()
-    temporary_sequences_file = Path(temporary_sequences_directory, "sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w") as sequences_file:
+def test_when_fasta_sequences_file_has_path_parents_then_write_sequences_list_file_to_disk():
+    sequences_list_file_expected = Path("sequences_directory_Sequences_List.txt")
+    temporary_sequences_directory = Path("sequences_directory")
+    temporary_sequences_directory.mkdir()
+    temporary_sequences_file = temporary_sequences_directory.joinpath("sequences.fasta")
+    with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write(">Sequence1|text1\nAAA\n")
         sequences_file.write(">Sequence2 |text2\nCCC\n")
         sequences_file.write(">Sequence3\nGGG\n")
-    sequences_file_prefix_path_string_returned = fastasplitter.split_fasta_sequences_file \
-        .get_sequences_file_prefix_path_string(temporary_sequences_file)
+    sequences_file_path_parents_returned = fastasplitter.split_fasta_sequences_file \
+        .get_sequences_file_path_parents(temporary_sequences_file)
+    sequences_file_path_parents_underscored_returned = fastasplitter.split_fasta_sequences_file \
+        .get_sequences_file_path_parents_underscored(sequences_file_path_parents_returned)
     sequences_file_extension_returned = fastasplitter.split_fasta_sequences_file \
         .get_sequences_file_extension(temporary_sequences_file)
     sequences_name_list_returned = fastasplitter.split_fasta_sequences_file \
         .get_sequences_name_list(temporary_sequences_file)
     fastasplitter.split_fasta_sequences_file \
-        .write_sequences_fasta_files_index_list_text_file(sequences_file_prefix_path_string_returned,
+        .write_sequences_fasta_files_index_list_text_file(sequences_file_path_parents_underscored_returned,
                                                           sequences_file_extension_returned,
                                                           sequences_name_list_returned)
-    assert Path(sequences_list_file_expected).is_file()
-    Path(sequences_list_file_expected).unlink()
-    Path(temporary_sequences_file).unlink()
-    Path(temporary_sequences_directory).rmdir()
+    assert sequences_list_file_expected.is_file()
+    sequences_list_file_expected.unlink()
+    temporary_sequences_file.unlink()
+    temporary_sequences_directory.rmdir()
 
 
 def test_when_execute_main_function_with_valid_fasta_sequences_file_then_return_successful_termination_code():
@@ -246,7 +253,7 @@ def test_when_execute_main_function_with_valid_fasta_sequences_file_then_return_
     sequence3_file_expected = Path("Sequence3.fasta")
     sequences_list_file_expected = Path("Sequences_List.txt")
     temporary_sequences_file = Path("sequences.fasta")
-    with open(Path(temporary_sequences_file), mode="w") as sequences_file:
+    with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write(">Sequence1|text1\nAAA\n")
         sequences_file.write(">Sequence2 |text2\nCCC\n")
         sequences_file.write(">Sequence3\nGGG\n")
@@ -255,8 +262,8 @@ def test_when_execute_main_function_with_valid_fasta_sequences_file_then_return_
         runpy.run_path("fastasplitter/split_fasta_sequences_file.py", run_name="__main__")
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 0
-    Path(sequence1_file_expected).unlink()
-    Path(sequence2_file_expected).unlink()
-    Path(sequence3_file_expected).unlink()
-    Path(sequences_list_file_expected).unlink()
-    Path(temporary_sequences_file).unlink()
+    sequence1_file_expected.unlink()
+    sequence2_file_expected.unlink()
+    sequence3_file_expected.unlink()
+    sequences_list_file_expected.unlink()
+    temporary_sequences_file.unlink()
