@@ -26,7 +26,12 @@ jobs:
         if (Test-Path -Path REQUIREMENTS -PathType Leaf) {
           pip install -r REQUIREMENTS
         }
-    - name: Test with pytest
+    - name: Run tests with pytest
       run: pytest
-    - name: Run Tox
+    - name: Run tests with Tox
       run: tox -e py
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
+        fail_ci_if_error: true
