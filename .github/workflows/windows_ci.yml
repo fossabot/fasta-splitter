@@ -28,7 +28,7 @@ jobs:
         }
     - name: Run tests with pytest
       run: pytest
-    - name: Run tests with Tox
+    - name: Run Tox
       run: tox -e py
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1

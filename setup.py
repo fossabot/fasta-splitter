@@ -1,10 +1,9 @@
 from pathlib import Path
 from setuptools import setup
-import os
 
 
 def get_version():
-    with open(os.path.join(Path(__file__).parent, "VERSION")) as version_file:
+    with open(Path(__file__).parent.joinpath("VERSION")) as version_file:
         for line in version_file:
             line = line.strip()
             if "major" in line:
@@ -23,13 +22,13 @@ def get_version():
 
 
 def get_readme():
-    with open(os.path.join(Path(__file__).parent, "README.md")) as readme_file:
+    with open(Path(__file__).parent.joinpath("README.md")) as readme_file:
         readme = readme_file.read()
     return readme
 
 
 def get_requirements_list():
-    with open(os.path.join(Path(__file__).parent, "REQUIREMENTS")) as requirements_file:
+    with open(Path(__file__).parent.joinpath("requirements.txt")) as requirements_file:
         requirements_list = requirements_file.read().splitlines()
     return requirements_list
 
@@ -54,7 +53,10 @@ setup(name="fasta-splitter",
                    "Operating System :: Microsoft :: Windows :: Windows 10",
                    "Operating System :: POSIX :: BSD :: FreeBSD",
                    "Operating System :: POSIX :: Linux",
+                   "Programming Language :: Python :: 3.6",
+                   "Programming Language :: Python :: 3.7",
                    "Programming Language :: Python :: 3.8",
+                   "Programming Language :: Python :: 3.9",
                    "Topic :: Scientific/Engineering :: Bio-Informatics"],
       packages=["fastasplitter"],
       include_package_data=True,
