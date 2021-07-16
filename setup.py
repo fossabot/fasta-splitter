@@ -2,23 +2,54 @@ from pathlib import Path
 from setuptools import setup
 
 
-def get_version():
+def get_version(major: int,
+                minor: int,
+                patch: int,
+                prerelease: str):
+    if len(prerelease) > 0:
+        version = str(major) + "." + str(minor) + "." + str(patch) + "-" + prerelease
+    else:
+        version = str(major) + "." + str(minor) + "." + str(patch)
+    return version
+
+
+def get_major(line: str):
+    major = 0
+    if "major" in line:
+        major = int(line.rsplit("=", 1)[1])
+    return major
+
+
+def get_minor(line: str):
+    minor = 0
+    if "minor" in line:
+        minor = int(line.rsplit("=", 1)[1])
+    return minor
+
+
+def get_patch(line: str):
+    patch = 0
+    if "patch" in line:
+        patch = int(line.rsplit("=", 1)[1])
+    return patch
+
+
+def get_pre_release(line: str):
+    pre_release = ""
+    if "pre_release" in line:
+        pre_release = str(line.rsplit("=", 1)[1])
+    return pre_release
+
+
+def parse_version_file():
     with open(Path(__file__).parent.joinpath("VERSION")) as version_file:
         for line in version_file:
             line = line.strip()
-            if "major" in line:
-                major = line.rsplit("=", 1)[1]
-            if "minor" in line:
-                minor = line.rsplit("=", 1)[1]
-            if "patch" in line:
-                patch = line.rsplit("=", 1)[1]
-            if "prerelease" in line:
-                prerelease = line.rsplit("=", 1)[1]
-    if len(prerelease) > 0:
-        version = major + "." + minor + "." + patch + "-" + prerelease
-    else:
-        version = major + "." + minor + "." + patch
-    return version
+            major = get_major(line)
+            minor = get_minor(line)
+            patch = get_patch(line)
+            pre_release = get_pre_release(line)
+    return get_version(major, minor, patch, pre_release)
 
 
 def get_readme():
@@ -34,7 +65,7 @@ def get_requirements_list():
 
 
 setup(name="fasta-splitter",
-      version=get_version(),
+      version=parse_version_file(),
       description="Command line tool to split one multiple sequences fasta file into individual sequences fasta files.",
       long_description=get_readme(),
       long_description_content_type="text/markdown",

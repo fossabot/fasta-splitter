@@ -11,39 +11,98 @@ def check_if_is_valid_number_of_arguments(number_of_arguments_provided: int):
         raise fastasplitter.exceptions.InvalidNumberofArgumentsError(invalid_number_of_arguments_message)
 
 
+def check_if_sequences_file_exists(sequences_file_path: Path):
+    if not sequences_file_path.is_file():
+        file_not_found_message = "FASTA Sequences File not Found!"
+        raise FileNotFoundError(file_not_found_message)
+
+
 def get_sequences_file_extension(sequences_file_path: Path):
     return sequences_file_path.suffix
 
 
-def check_if_is_valid_fasta_sequences_file(sequences_file_path: Path):
-    if not sequences_file_path.is_file():
-        file_not_found_message = "FASTA Sequences File not Found!"
-        raise FileNotFoundError(file_not_found_message)
+def check_if_sequences_file_has_fasta_extension(sequences_file_path: Path):
     if get_sequences_file_extension(sequences_file_path) not in [".fa", ".faa", ".fasta", ".ffn", ".fna", ".frn"]:
         invalid_format_file_message = "Only FASTA Extension Files (.fa, .faa, .fasta, .ffn, .fna or .frn) are Allowed!"
         raise fastasplitter.exceptions.InvalidExtensionFileError(invalid_format_file_message)
-    header_lines_count = 0
-    invalid_header_lines_count = 0
-    lines_count = 0
+
+
+def parse_description_line(line: str,
+                           sequences_start_token: str,
+                           description_lines_count: int):
+    if line.startswith(sequences_start_token):
+        description_lines_count = description_lines_count + 1
+    return description_lines_count
+
+
+def parse_invalid_description_line(line: str,
+                                   sequences_start_token: str,
+                                   invalid_description_lines_count: int):
+    if line.startswith(sequences_start_token) and line.split(" ", 1)[0] == sequences_start_token:
+        invalid_description_lines_count = invalid_description_lines_count + 1
+    return invalid_description_lines_count
+
+
+def parse_sequences_file_line(line: str,
+                              description_lines_count: int,
+                              invalid_description_lines_count: int,
+                              lines_count: int):
     sequences_start_token = ">"
+    description_lines_count = parse_description_line(line,
+                                                     sequences_start_token,
+                                                     description_lines_count)
+    invalid_description_lines_count = parse_invalid_description_line(line,
+                                                                     sequences_start_token,
+                                                                     invalid_description_lines_count)
+    lines_count = lines_count + 1
+    return description_lines_count, invalid_description_lines_count, lines_count
+
+
+def get_sequences_file_counters(sequences_file_path: Path):
+    description_lines_count = 0
+    invalid_description_lines_count = 0
+    lines_count = 0
     with open(sequences_file_path, mode="r") as sequences_file:
         for line in sequences_file:
-            if line.startswith(sequences_start_token):
-                header_lines_count = header_lines_count + 1
-            if line.startswith(sequences_start_token) and line.split(" ", 1)[0] == sequences_start_token:
-                invalid_header_lines_count = invalid_header_lines_count + 1
-            lines_count = lines_count + 1
-    if header_lines_count == 0:
+            description_lines_count, invalid_description_lines_count, lines_count = \
+                parse_sequences_file_line(line,
+                                          description_lines_count,
+                                          invalid_description_lines_count,
+                                          lines_count)
+    return description_lines_count, invalid_description_lines_count, lines_count
+
+
+def check_if_sequences_file_has_any_description_line(sequences_file_path: Path,
+                                                     description_lines_count: int):
+    if description_lines_count == 0:
         invalid_formatted_fasta_file_message = "'{0}' Has Not Any Description Line!" \
             .format(str(sequences_file_path))
         raise fastasplitter.exceptions.InvalidFormattedFastaFileError(invalid_formatted_fasta_file_message)
-    if invalid_header_lines_count != 0:
+
+
+def check_if_sequences_file_has_any_invalid_description_line(sequences_file_path: Path,
+                                                             invalid_description_lines_count: int):
+    if invalid_description_lines_count != 0:
         invalid_formatted_fasta_file_message = "'{0}' Contains {1} Line(s) With Invalid Description Format!" \
-            .format(str(sequences_file_path), str(invalid_header_lines_count))
+            .format(str(sequences_file_path), str(invalid_description_lines_count))
         raise fastasplitter.exceptions.InvalidFormattedFastaFileError(invalid_formatted_fasta_file_message)
+
+
+def check_if_sequences_file_has_no_data(sequences_file_path: Path,
+                                        lines_count: int):
     if lines_count < 2:
         invalid_formatted_fasta_file_message = "'{0}' Seems a Empty Fasta File!".format(str(sequences_file_path))
         raise fastasplitter.exceptions.InvalidFormattedFastaFileError(invalid_formatted_fasta_file_message)
+
+
+def check_if_is_valid_fasta_sequences_file(sequences_file_path: Path):
+    check_if_sequences_file_exists(sequences_file_path)
+    check_if_sequences_file_has_fasta_extension(sequences_file_path)
+    description_lines_count, invalid_description_lines_count, lines_count = \
+        get_sequences_file_counters(sequences_file_path)
+    check_if_sequences_file_has_any_description_line(sequences_file_path, description_lines_count)
+    check_if_sequences_file_has_any_invalid_description_line(sequences_file_path, invalid_description_lines_count)
+    check_if_sequences_file_has_no_data(sequences_file_path, lines_count)
 
 
 def get_sequences_file_path_parents(sequences_file_path: Path):

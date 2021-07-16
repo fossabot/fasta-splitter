@@ -7,4 +7,4 @@ Fasta Sequences File Splitter
 [![macOS CI](https://github.com/alan-lira/fasta-splitter/actions/workflows/macos_ci.yml/badge.svg)](https://github.com/alan-lira/fasta-splitter/actions/workflows/macos_ci.yml)
 [![codecov](https://codecov.io/gh/alan-lira/fasta-splitter/branch/master/graph/badge.svg)](https://codecov.io/gh/alan-lira/fasta-splitter)
 [![Known Vulnerabilities](https://snyk.io/test/github/alan-lira/fasta-splitter/badge.svg)](https://snyk.io/test/github/alan-lira/fasta-splitter)
-
+[![Maintainability](https://api.codeclimate.com/v1/badges/93ea9bc426ee119d0660/maintainability)](https://codeclimate.com/github/alan-lira/fasta-splitter/maintainability)

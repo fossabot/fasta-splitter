@@ -26,13 +26,13 @@ def test_when_number_of_arguments_not_equals_two_then_throws_invalid_number_of_a
 def test_when_sequences_file_not_exists_then_throws_file_not_found_exception():
     inexistent_sequences_file = Path("inexistent_sequences.fasta")
     with pytest.raises(FileNotFoundError) as pytest_wrapped_e:
-        fastasplitter.split_fasta_sequences_file.check_if_is_valid_fasta_sequences_file(inexistent_sequences_file)
+        fastasplitter.split_fasta_sequences_file.check_if_sequences_file_exists(inexistent_sequences_file)
     file_not_found_message = "FASTA Sequences File not Found!"
     assert pytest_wrapped_e.type == FileNotFoundError
     assert str(pytest_wrapped_e.value) == file_not_found_message
 
 
-def test_when_sequences_file_is_fasta_extension_then_return_extension():
+def test_when_sequences_file_exists_then_return_sequences_file_extension():
     sequences_file_extension_expected = ".fasta"
     temporary_sequences_file = Path("sequences.fasta")
     with open(temporary_sequences_file, mode="w"):
@@ -43,15 +43,51 @@ def test_when_sequences_file_is_fasta_extension_then_return_extension():
     temporary_sequences_file.unlink()
 
 
-def test_when_sequences_file_is_not_fasta_extension_then_throws_invalid_extension_file_exception():
+def test_when_sequences_file_has_no_fasta_extension_then_throws_invalid_extension_file_exception():
     temporary_sequences_file = Path("sequences.txt")
     with open(temporary_sequences_file, mode="w"):
         pass
     with pytest.raises(fastasplitter.exceptions.InvalidExtensionFileError) as pytest_wrapped_e:
-        fastasplitter.split_fasta_sequences_file.check_if_is_valid_fasta_sequences_file(temporary_sequences_file)
+        fastasplitter.split_fasta_sequences_file.check_if_sequences_file_has_fasta_extension(temporary_sequences_file)
     invalid_format_file_message = "Only FASTA Extension Files (.fa, .faa, .fasta, .ffn, .fna or .frn) are Allowed!"
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidExtensionFileError
     assert str(pytest_wrapped_e.value) == invalid_format_file_message
+    temporary_sequences_file.unlink()
+
+
+def test_when_description_line_is_parsed_then_return_description_lines_count():
+    description_line_count_expected = 1
+    line = ">ValidDescription1 |text1\n"
+    sequences_start_token = ">"
+    description_lines_count_returned = 0
+    description_lines_count_returned = fastasplitter.split_fasta_sequences_file \
+        .parse_description_line(line, sequences_start_token, description_lines_count_returned)
+    assert description_lines_count_returned == description_line_count_expected
+
+
+def test_when_invalid_description_line_is_parsed_then_return_invalid_description_lines_count():
+    invalid_description_lines_count_expected = 1
+    line = "> InvalidDescription1\n"
+    sequences_start_token = ">"
+    invalid_description_lines_count_returned = 0
+    invalid_description_lines_count_returned = fastasplitter.split_fasta_sequences_file \
+        .parse_invalid_description_line(line, sequences_start_token, invalid_description_lines_count_returned)
+    assert invalid_description_lines_count_returned == invalid_description_lines_count_expected
+
+
+def test_when_sequences_file_is_parsed_then_return_sequences_file_counter():
+    description_lines_count_expected = 2
+    invalid_description_lines_count_expected = 1
+    lines_count_expected = 4
+    temporary_sequences_file = Path("sequences.fasta")
+    with open(temporary_sequences_file, mode="w") as sequences_file:
+        sequences_file.write("> InvalidDescription1\nAAA\n")
+        sequences_file.write(">ValidDescription1 |text1\nCCC\n")
+    description_lines_count_returned, invalid_description_lines_count_returned, lines_count_returned = \
+        fastasplitter.split_fasta_sequences_file.get_sequences_file_counters(temporary_sequences_file)
+    assert description_lines_count_returned == description_lines_count_expected
+    assert invalid_description_lines_count_returned == invalid_description_lines_count_expected
+    assert lines_count_returned == lines_count_expected
     temporary_sequences_file.unlink()
 
 
@@ -61,8 +97,12 @@ def test_when_fasta_sequences_file_has_not_any_description_line_then_throws_inva
         sequences_file.write("AAA\n")
         sequences_file.write("CCC\n")
         sequences_file.write("GGG\n")
+    description_lines_count_returned, invalid_description_lines_count_returned, lines_count_returned = \
+        fastasplitter.split_fasta_sequences_file.get_sequences_file_counters(temporary_sequences_file)
     with pytest.raises(fastasplitter.exceptions.InvalidFormattedFastaFileError) as pytest_wrapped_e:
-        fastasplitter.split_fasta_sequences_file.check_if_is_valid_fasta_sequences_file(temporary_sequences_file)
+        fastasplitter.split_fasta_sequences_file \
+            .check_if_sequences_file_has_any_description_line(temporary_sequences_file,
+                                                              description_lines_count_returned)
     invalid_formatted_fasta_file_message = "'{0}' Has Not Any Description Line!".format(str(temporary_sequences_file))
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidFormattedFastaFileError
     assert str(pytest_wrapped_e.value) == invalid_formatted_fasta_file_message
@@ -76,8 +116,12 @@ def test_when_fasta_sequences_file_has_invalid_description_lines_then_throws_inv
         sequences_file.write(">ValidDescription1 |text1\nCCC\n")
         sequences_file.write(">ValidDescription2|text2\nGGG\n")
         sequences_file.write("> InvalidDescription2|text2\nTTT\n")
+    description_lines_count_returned, invalid_description_lines_count_returned, lines_count_returned = \
+        fastasplitter.split_fasta_sequences_file.get_sequences_file_counters(temporary_sequences_file)
     with pytest.raises(fastasplitter.exceptions.InvalidFormattedFastaFileError) as pytest_wrapped_e:
-        fastasplitter.split_fasta_sequences_file.check_if_is_valid_fasta_sequences_file(temporary_sequences_file)
+        fastasplitter.split_fasta_sequences_file \
+            .check_if_sequences_file_has_any_invalid_description_line(temporary_sequences_file,
+                                                                      invalid_description_lines_count_returned)
     invalid_formatted_fasta_file_message = "'{0}' Contains {1} Line(s) With Invalid Description Format!" \
         .format(str(temporary_sequences_file), str(2))
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidFormattedFastaFileError
@@ -89,8 +133,11 @@ def test_when_fasta_sequences_file_has_no_data_then_throws_invalid_formatted_fas
     temporary_sequences_file = Path("sequences.fasta")
     with open(temporary_sequences_file, mode="w") as sequences_file:
         sequences_file.write(">ValidDescription1\n")
+    description_lines_count_returned, invalid_description_lines_count_returned, lines_count_returned = \
+        fastasplitter.split_fasta_sequences_file.get_sequences_file_counters(temporary_sequences_file)
     with pytest.raises(fastasplitter.exceptions.InvalidFormattedFastaFileError) as pytest_wrapped_e:
-        fastasplitter.split_fasta_sequences_file.check_if_is_valid_fasta_sequences_file(temporary_sequences_file)
+        fastasplitter.split_fasta_sequences_file.check_if_sequences_file_has_no_data(temporary_sequences_file,
+                                                                                     lines_count_returned)
     invalid_formatted_fasta_file_message = "'{0}' Seems a Empty Fasta File!".format(str(temporary_sequences_file))
     assert pytest_wrapped_e.type == fastasplitter.exceptions.InvalidFormattedFastaFileError
     assert str(pytest_wrapped_e.value) == invalid_formatted_fasta_file_message
